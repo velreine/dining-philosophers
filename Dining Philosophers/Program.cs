@@ -10,7 +10,7 @@ namespace Dining_Philosophers
 {
     class Program
     {
-        private static object[] _forks = {false, false, false, false, false};
+        private static readonly object[] Forks = {false, false, false, false, false};
         private static readonly Philosopher[] Philosophers = new Philosopher[5];
 
 
@@ -23,7 +23,7 @@ namespace Dining_Philosophers
                 Philosophers[i] = new Philosopher($"Philosopher_{i}", i);
                 Thread t = new Thread(PhilosopherWork);
 
-                object argsX = new object[2] { Philosophers[i], rng};
+                object argsX = new object[] { Philosophers[i], rng};
 
                 //t.Start(Philosophers[i]);
                 t.Start(argsX);
@@ -37,9 +37,7 @@ namespace Dining_Philosophers
 
         private static void PhilosopherWork(object args)
         {
-
-            Array argArray = new object[3];
-            argArray = (Array) args;
+            var argArray = (Array) args;
 
             Philosopher phil = (Philosopher)argArray.GetValue(0);
             Random rng = (Random)argArray.GetValue(1);
@@ -52,11 +50,11 @@ namespace Dining_Philosophers
                 try
                 {
                     // If we can grab the left then.
-                    if (Monitor.TryEnter(_forks[phil.LocationAtTable], rng.Next(100, 1000)))
+                    if (Monitor.TryEnter(Forks[phil.LocationAtTable], rng.Next(100, 1000)))
                     {
                         // Try to grab the right also.
                         phil.Wait();
-                        if (Monitor.TryEnter(_forks[phil.LocationAtTable + 1], 1000))
+                        if (Monitor.TryEnter(Forks[phil.LocationAtTable + 1], 1000))
                         {
                             phil.Eat();                            
                         }
@@ -70,14 +68,14 @@ namespace Dining_Philosophers
                 }
                 finally
                 {
-                    if (Monitor.IsEntered(_forks[phil.LocationAtTable]))
+                    if (Monitor.IsEntered(Forks[phil.LocationAtTable]))
                     {
-                        Monitor.Exit(_forks[phil.LocationAtTable]);
+                        Monitor.Exit(Forks[phil.LocationAtTable]);
                     }
 
-                    if (Monitor.IsEntered(_forks[phil.LocationAtTable + 1]))
+                    if (Monitor.IsEntered(Forks[phil.LocationAtTable + 1]))
                     {
-                        Monitor.Exit(_forks[phil.LocationAtTable + 1]);
+                        Monitor.Exit(Forks[phil.LocationAtTable + 1]);
                     }
 
                     phil.Think();
