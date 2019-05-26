@@ -10,24 +10,27 @@ namespace Dining_Philosophers
 {
     class Program
     {
-        private static readonly object[] Forks = {false, false, false, false, false};
+        private static readonly object[] Forks = { false, false, false, false, false };
         private static readonly Philosopher[] Philosophers = new Philosopher[5];
-
+        private static ConsoleWriter cw;
 
         static void Main(string[] args)
         {
             Random rng = new Random();
+
+            cw = new ConsoleWriter(Forks);
+
+
 
             for (int i = 0; i < 5; i++)
             {
                 Philosophers[i] = new Philosopher($"Philosopher_{i}", i);
                 Thread t = new Thread(PhilosopherWork);
 
-                object argsX = new object[] { Philosophers[i], rng};
+                object argsX = new object[] { Philosophers[i], rng };
 
                 //t.Start(Philosophers[i]);
                 t.Start(argsX);
-               
             }
 
             Console.ReadLine();
@@ -37,30 +40,54 @@ namespace Dining_Philosophers
 
         private static void PhilosopherWork(object args)
         {
-            var argArray = (Array) args;
+            var argArray = (Array)args;
 
             Philosopher phil = (Philosopher)argArray.GetValue(0);
             Random rng = (Random)argArray.GetValue(1);
 
-            Console.WriteLine($"Philosopher: {phil.Name} entered its loop.");
-            
+            //Console.WriteLine($"Philosopher: {phil.Name} entered its loop.");
+
             while (true)
             {
+                //cw.PrintHeader();
+
                 // Try to Grab fork to the left and right.
+                var leftFork = (phil.LocationAtTable - 1) == -1 ? Forks.Length - 1 : (phil.LocationAtTable % Forks.Length);
+                var rightFork = phil.LocationAtTable;
+                bool ateThisCycle = false;
+
                 try
                 {
-                    // If we can grab the left then.
-                    if (Monitor.TryEnter(Forks[phil.LocationAtTable], rng.Next(100, 1000)))
+
+                    // Try to grab the left first.
+                    if (Monitor.TryEnter(Forks[leftFork]))
                     {
                         // Try to grab the right also.
-                        phil.Wait();
-                        if (Monitor.TryEnter(Forks[phil.LocationAtTable + 1], 1000))
+                        if (Monitor.TryEnter(Forks[rightFork]))
                         {
-                            phil.Eat();                            
+                            phil.Eat();
+
+                            ateThisCycle = true;
+                        }
+                        else
+                        {
+                            Monitor.Exit(Forks[leftFork]);
+                        }
+                    }
+
+                    if (!ateThisCycle && Monitor.TryEnter(Forks[rightFork]))
+                    {
+                        if(Monitor.TryEnter(Forks[leftFork]))
+                        {
+                            phil.Eat();
+                        }
+                        else
+                        {
+                            Monitor.Exit(Forks[rightFork]);
                         }
                     }
                 }
-                
+
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
@@ -68,19 +95,18 @@ namespace Dining_Philosophers
                 }
                 finally
                 {
-                    if (Monitor.IsEntered(Forks[phil.LocationAtTable]))
+                    if (Monitor.IsEntered(Forks[leftFork]))
                     {
-                        Monitor.Exit(Forks[phil.LocationAtTable]);
+                        Monitor.Exit(Forks[leftFork]);
                     }
 
-                    if (Monitor.IsEntered(Forks[phil.LocationAtTable + 1]))
+                    if (Monitor.IsEntered(Forks[rightFork]))
                     {
-                        Monitor.Exit(Forks[phil.LocationAtTable + 1]);
+                        Monitor.Exit(Forks[rightFork]);
                     }
 
-                    phil.Think();
                 }
-                //Thread.Sleep(rng.Next(100, 1500));
+                Thread.Sleep(rng.Next(1000, 1500));
             }
         }
 
