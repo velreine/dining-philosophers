@@ -7,7 +7,7 @@
     <ProjectGuid>{746B604F-1963-4733-BE43-88B709124B1D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>Dining_Philosophers</RootNamespace>
-    <AssemblyName>Dining Philosophers</AssemblyName>
+    <AssemblyName>DiningPhilosophers</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -25,12 +25,10 @@ namespace Dining_Philosophers
             for (int i = 0; i < 5; i++)
             {
                 Philosophers[i] = new Philosopher($"Philosopher_{i}", i);
-                Thread t = new Thread(PhilosopherWork);
+                int temp = i;
+                Thread t = new Thread(() => PhilosopherWork(Philosophers[temp], rng));
 
-                object argsX = new object[] { Philosophers[i], rng };
-
-                //t.Start(Philosophers[i]);
-                t.Start(argsX);
+                t.Start();
             }
 
             Console.ReadLine();
@@ -38,13 +36,8 @@ namespace Dining_Philosophers
 
         }
 
-        private static void PhilosopherWork(object args)
+        private static void PhilosopherWork(Philosopher phil, Random rng)
         {
-            var argArray = (Array)args;
-
-            Philosopher phil = (Philosopher)argArray.GetValue(0);
-            Random rng = (Random)argArray.GetValue(1);
-
             //Console.WriteLine($"Philosopher: {phil.Name} entered its loop.");
 
             while (true)
@@ -106,6 +99,8 @@ namespace Dining_Philosophers
                     }
 
                 }
+
+                // Only works when this random sleep is introduced.
                 Thread.Sleep(rng.Next(1000, 1500));
             }
         }
