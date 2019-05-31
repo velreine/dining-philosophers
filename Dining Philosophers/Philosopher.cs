@@ -22,15 +22,13 @@ namespace Dining_Philosophers
         public void Eat()
         {
             Console.WriteLine($"{this.Name} is currently eating!");
-            Thread.Sleep(_rng.Next(200, 1500));
-            this.Think();
-
+            Thread.Sleep(2000);
         }
 
         public void Think()
         {
             Console.WriteLine($"{this.Name} is currently thinking..");
-            //Thread.Sleep(_rng.Next(100, 1000));
+            Thread.Sleep(_rng.Next(100, 1000));
         }
 
         public void Wait()
